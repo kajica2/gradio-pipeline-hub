@@ -1,0 +1,124 @@
+{
+  "categories": [
+    {
+      "id": "music-transcription",
+      "label": "Music Transcription",
+      "color": "#7dd3c0",
+      "keywords": ["transcription", "midi", "musicxml", "pitch", "audio-to-midi", "basic-pitch", "crepe", "amt"]
+    },
+    {
+      "id": "audio-separation",
+      "label": "Audio Source Separation",
+      "color": "#a78bfa",
+      "keywords": ["demucs", "separation", "stems", "vocals", "drums", "bass", "spleeter", "open-unmix"]
+    },
+    {
+      "id": "text-to-speech",
+      "label": "Text-to-Speech",
+      "color": "#fbbf24",
+      "keywords": ["tts", "speech", "voice", "bark", "tortoise", "elevenlabs", "speecht5", "coqui"]
+    },
+    {
+      "id": "speech-to-text",
+      "label": "Speech-to-Text (ASR)",
+      "color": "#f472b6",
+      "keywords": ["asr", "whisper", "transcription", "speech-recognition", "wav2vec", "vosk"]
+    },
+    {
+      "id": "voice-clone",
+      "label": "Voice Cloning",
+      "color": "#fb7185",
+      "keywords": ["voice-clone", "rvc", "so-vits", "tortoise", "openvoice", "kokoro"]
+    },
+    {
+      "id": "music-generation",
+      "label": "Music Generation",
+      "color": "#60a5fa",
+      "keywords": ["musicgen", "audiogen", "stable-audio", "suno", "music-generation", "lyria", "magenta"]
+    },
+    {
+      "id": "sound-effects",
+      "label": "Sound Effects / SFX",
+      "color": "#34d399",
+      "keywords": ["audio-generation", "sfx", "sound-effects", "audiogen", "stable-audio"]
+    },
+    {
+      "id": "image-to-video",
+      "label": "Image-to-Video",
+      "color": "#c084fc",
+      "keywords": ["video", "i2v", "image-to-video", "stable-video", "svd", "animate", "dynamiCrafter"]
+    },
+    {
+      "id": "video-generation",
+      "label": "Video Generation",
+      "color": "#e879f9",
+      "keywords": ["t2v", "text-to-video", "video-generation", "cogvideo", "animatediff", "hotshot"]
+    },
+    {
+      "id": "image-generation",
+      "label": "Image Generation",
+      "color": "#22d3ee",
+      "keywords": ["text-to-image", "stable-diffusion", "sdxl", "flux", "image-gen", "kandinsky"]
+    },
+    {
+      "id": "image-edit",
+      "label": "Image Editing",
+      "color": "#a3e635",
+      "keywords": ["inpainting", "outpainting", "image-edit", "controlnet", "ip-adapter"]
+    },
+    {
+      "id": "speech-enhancement",
+      "label": "Speech Enhancement",
+      "color": "#facc15",
+      "keywords": ["denoise", "dereverb", "audio-enhance", "resemble", "voicefixer"]
+    },
+    {
+      "id": "speaker-diarization",
+      "label": "Speaker Diarization",
+      "color": "#fb923c",
+      "keywords": ["diarization", "pyannote", "speaker-id", "who-spoke-when"]
+    },
+    {
+      "id": "ocr",
+      "label": "OCR / Document AI",
+      "color": "#94a3b8",
+      "keywords": ["ocr", "document", "pdf", "tesseract", "surya", "marker"]
+    },
+    {
+      "id": "llm-chat",
+      "label": "LLM Chat",
+      "color": "#fde047",
+      "keywords": ["llm", "chat", "language-model", "rag", "qwen", "llama", "mistral", "gpt"]
+    },
+    {
+      "id": "agents",
+      "label": "Agentic Workflows",
+      "color": "#f87171",
+      "keywords": ["agent", "langgraph", "autogen", "crewai", "tool-use"]
+    },
+    {
+      "id": "vision",
+      "label": "Computer Vision",
+      "color": "#4ade80",
+      "keywords": ["yolo", "segmentation", "detection", "depth", "pose", "grounded-sam"]
+    },
+    {
+      "id": "3d",
+      "label": "3D / NeRF / Gaussian Splatting",
+      "color": "#38bdf8",
+      "keywords": ["3d", "nerf", "gaussian-splatting", "point-cloud", "triposr", "shap-e"]
+    },
+    {
+      "id": "code",
+      "label": "Code / Dev",
+      "color": "#cbd5e1",
+      "keywords": ["code", "copilot", "starcoder", "deepseek-coder", "devstral"]
+    },
+    {
+      "id": "translation",
+      "label": "Translation",
+      "color": "#67e8f9",
+      "keywords": ["translation", "nllb", "seamless", "madlad", "translate"]
+    }
+  ]
+}

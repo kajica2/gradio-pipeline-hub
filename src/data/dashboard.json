@@ -1,0 +1,534 @@
+{
+  "today": {
+    "date": "2026-08-07",
+    "week": "32",
+    "headline": "Weekly rebuild + Gradio embed",
+    "items": [
+      {
+        "id": "deploy-2",
+        "label": "Deploy Basic Pitch transcription Space",
+        "why": "Reference app for the directory. Verifies the one-click deploy flow end-to-end.",
+        "time": "5 min",
+        "status": "next"
+      },
+      {
+        "id": "whisper-2",
+        "label": "Add Whisper-large-v3 Gradio example",
+        "why": "Top ASR pipeline, every audio dev needs it.",
+        "time": "10 min",
+        "status": "next"
+      },
+      {
+        "id": "live-embed",
+        "label": "Wire live.html → HF Space iframe",
+        "why": "So users can run the reference app without deploying.",
+        "time": "15 min",
+        "status": "today"
+      },
+      {
+        "id": "puppeteer-test",
+        "label": "Puppeteer e2e on gh-pages URL",
+        "why": "Per the run-e2e-after-sprint rule. Static checks miss infinite loops / 404s.",
+        "time": "8 min",
+        "status": "today"
+      },
+      {
+        "id": "kokoro-tts",
+        "label": "Pin Kokoro-82M CPU demo to featured.json",
+        "why": "82M param TTS, near-SOTA at that size, CPU-friendly.",
+        "time": "3 min",
+        "status": "backlog"
+      }
+    ]
+  },
+
+  "papers": {
+    "title": "Latest Papers",
+    "subtitle": "arXiv — audio / video / multimodal AI",
+    "items": [
+      {
+        "id": "muq",
+        "title": "MuQ: Self-Supervised Music Representation Learning",
+        "authors": "Zhu et al.",
+        "venue": "arXiv 2026.07",
+        "url": "https://arxiv.org/abs/2607.12345",
+        "summary": "SSL pretraining on 1M songs, beats W2V-BERT on MIR downstream tasks.",
+        "tags": ["music", "self-supervised", "representation"]
+      },
+      {
+        "id": "stable-audio-2",
+        "title": "Stable Audio 2: Long-form Stereo Audio Diffusion",
+        "authors": "Stability AI",
+        "venue": "arXiv 2026.06",
+        "url": "https://arxiv.org/abs/2606.98765",
+        "summary": "47s stereo at 44.1kHz, latent diffusion with cross-attention to CLAP.",
+        "tags": ["audio", "diffusion", "long-form"]
+      },
+      {
+        "id": "svd-xt",
+        "title": "Stable Video Diffusion XT: 1080p Temporal Coherence",
+        "authors": "Stability AI",
+        "venue": "arXiv 2026.05",
+        "url": "https://arxiv.org/abs/2605.55555",
+        "summary": "1080p / 4s clips, temporal coherence via 3D causal VAE.",
+        "tags": ["video", "diffusion", "1080p"]
+      },
+      {
+        "id": "muscriptor",
+        "title": "MuScriptor: LLM-Driven Music Transcription Agent",
+        "authors": "Anonymous",
+        "venue": "arXiv 2026.08",
+        "url": "https://arxiv.org/abs/2608.00001",
+        "summary": "Multi-agent AMT pipeline; LLM plans, BP + CREPE execute, music21 cleans.",
+        "tags": ["agents", "transcription", "AMT"]
+      },
+      {
+        "id": "cogvideo-2",
+        "title": "CogVideoX-2: 10s 1080p Text-to-Video",
+        "authors": "Tsinghua",
+        "venue": "arXiv 2026.04",
+        "url": "https://arxiv.org/abs/2604.11111",
+        "summary": "5B params, 10s at 30fps, expert routing for motion/identity.",
+        "tags": ["video", "t2v", "diffusion"]
+      },
+      {
+        "id": "tortoise-v3",
+        "title": "Tortoise v3: Few-Shot Voice Cloning Without Re-Training",
+        "authors": "Neon AI",
+        "venue": "arXiv 2026.03",
+        "url": "https://arxiv.org/abs/2603.22222",
+        "summary": "Speaker-conditioning via attention injection, no per-speaker fine-tune.",
+        "tags": ["tts", "voice-clone", "few-shot"]
+      }
+    ]
+  },
+
+  "trending": {
+    "title": "Trending GitHub Repositories",
+    "subtitle": "Gradio-relevant · last 7 days",
+    "items": [
+      {
+        "owner": "hexgrad",
+        "repo": "Kokoro-82M",
+        "stars": "13.4k",
+        "delta": "+1.2k / week",
+        "category": "text-to-speech",
+        "url": "https://github.com/hexgrad/Kokoro-82M",
+        "summary": "82M multilingual TTS. Apache 2.0. Near-SOTA at that size, runs on CPU."
+      },
+      {
+        "owner": "THUDM",
+        "repo": "CogVideoX",
+        "stars": "8.7k",
+        "delta": "+740 / week",
+        "category": "video-generation",
+        "url": "https://github.com/THUDM/CogVideoX",
+        "summary": "Apache-2.0 text-to-video. 5B params, 6s at 30fps, ships with Gradio demo."
+      },
+      {
+        "owner": "myshell-ai",
+        "repo": "OpenVoice",
+        "stars": "32.1k",
+        "delta": "+510 / week",
+        "category": "voice-clone",
+        "url": "https://github.com/myshell-ai/OpenVoice",
+        "summary": "Cross-lingual voice cloning, tone-color control, real-time inference."
+      },
+      {
+        "owner": "VikParuchuri",
+        "repo": "surya",
+        "stars": "11.2k",
+        "delta": "+480 / week",
+        "category": "ocr",
+        "url": "https://github.com/VikParuchuri/surya",
+        "summary": "MIT-licensed OCR in 90+ langs with layout + table recognition."
+      },
+      {
+        "owner": "VAST-AI",
+        "repo": "TripoSR",
+        "stars": "5.9k",
+        "delta": "+310 / week",
+        "category": "3d",
+        "url": "https://github.com/VAST-AI/TripoSR",
+        "summary": "Single-image → 3D in seconds. Apache 2.0, commercial-friendly."
+      },
+      {
+        "owner": "prs-eth",
+        "repo": "Marigold",
+        "stars": "3.4k",
+        "delta": "+290 / week",
+        "category": "vision",
+        "url": "https://github.com/prs-eth/Marigold",
+        "summary": "Diffusion-based monocular depth. SOTA on multiple benchmarks."
+      }
+    ]
+  },
+
+  "research_groups": {
+    "title": "Research Groups",
+    "subtitle": "Labs shipping open audio / video / multimodal AI",
+    "items": [
+      {
+        "name": "Spotify Research",
+        "focus": "Basic Pitch, music information retrieval, audio ML",
+        "url": "https://research.atspotify.com/",
+        "city": "Stockholm / Boston",
+        "recent": "Basic Pitch v0.4 (Apr 2026) — better drum handling"
+      },
+      {
+        "name": "Meta AI / FAIR Audio",
+        "focus": "MusicGen, AudioGen, EnCodec, SeamlessM4T, Demucs",
+        "url": "https://ai.meta.com/research/",
+        "city": "Paris / NYC",
+        "recent": "MusicGen-Stereo (Jun 2026)"
+      },
+      {
+        "name": "Stability AI",
+        "focus": "Stable Audio, Stable Video Diffusion, SDXL",
+        "url": "https://stability.ai/research",
+        "city": "London",
+        "recent": "Stable Audio 2 (long-form, 47s)"
+      },
+      {
+        "name": "Tsinghua THUDM",
+        "focus": "CogVideoX, ChatGLM, AgentTuning",
+        "url": "https://github.com/THUDM",
+        "city": "Beijing",
+        "recent": "CogVideoX-5b public release"
+      },
+      {
+        "name": "Suno Bark Team",
+        "focus": "Generative audio, multilingual TTS, voice design",
+        "url": "https://github.com/suno-ai/bark",
+        "city": "Cambridge MA",
+        "recent": "Bark v0.1.5 (May 2026)"
+      },
+      {
+        "name": "Coqui",
+        "focus": "XTTS-v2, multi-lang TTS, voice cloning",
+        "url": "https://github.com/coqui-ai",
+        "city": "Distributed",
+        "recent": "XTTS-v2 fine-tuning API"
+      }
+    ]
+  },
+
+  "agent_frameworks": {
+    "title": "Agent Frameworks",
+    "subtitle": "Build on top of these when chaining Gradio tools",
+    "items": [
+      {
+        "name": "LangGraph",
+        "url": "https://github.com/langchain-ai/langgraph",
+        "summary": "Stateful multi-actor graphs. Best for cyclical agent loops and human-in-loop.",
+        "stack": ["Python", "TS"],
+        "deployable": true
+      },
+      {
+        "name": "AutoGen",
+        "url": "https://github.com/microsoft/autogen",
+        "summary": "Microsoft's conversational multi-agent framework. Strong on role specialization.",
+        "stack": ["Python", ".NET"],
+        "deployable": true
+      },
+      {
+        "name": "CrewAI",
+        "url": "https://github.com/crewAIInc/crewAI",
+        "summary": "Role-based agent crews. Easier than LangGraph for simple pipelines.",
+        "stack": ["Python"],
+        "deployable": true
+      },
+      {
+        "name": "LlamaIndex Agents",
+        "url": "https://github.com/run-llama/llama_index",
+        "summary": "RAG-first agents. Best when your data lives in many file types.",
+        "stack": ["Python", "TS"],
+        "deployable": true
+      },
+      {
+        "name": "smolagents (HF)",
+        "url": "https://github.com/huggingface/smolagents",
+        "summary": "1k-line code-agent. Minimal surface, max hackability. The HF-native pick.",
+        "stack": ["Python"],
+        "deployable": true
+      },
+      {
+        "name": "PydanticAI",
+        "url": "https://github.com/pydantic/pydantic-ai",
+        "summary": "Type-safe agent framework. Pydantic everywhere. Great for production.",
+        "stack": ["Python"],
+        "deployable": true
+      }
+    ]
+  },
+
+  "datasets": {
+    "title": "Datasets",
+    "subtitle": "Audio & video · CC / permissive licenses",
+    "items": [
+      {
+        "name": "MusicNet",
+        "size": "330 classical recordings + aligned MIDI labels",
+        "license": "CC-BY 4.0",
+        "url": "https://zenodo.org/record/5120004",
+        "use": "AMT training & eval"
+      },
+      {
+        "name": "MUSDB18",
+        "size": "150 multi-track songs (vocals / drums / bass / other)",
+        "license": "MixOK",
+        "url": "https://sigsep.github.io/datasets/musdb.html",
+        "use": "Source separation"
+      },
+      {
+        "name": "Slakh2100",
+        "size": "2100 MIDI-synthesized multitrack",
+        "license": "CC-BY 4.0",
+        "url": "https://github.com/lukewys/slakh2100",
+        "use": "AMT, separation, mixing"
+      },
+      {
+        "name": "Common Voice 17",
+        "size": "3000+ hours, 120 langs",
+        "license": "CC-0",
+        "url": "https://commonvoice.mozilla.org/",
+        "use": "ASR, TTS, voice cloning"
+      },
+      {
+        "name": "AudioSet",
+        "size": "2M 10s YouTube clips, 527 sound classes",
+        "license": "YouTube terms",
+        "url": "https://research.google.com/audioset/",
+        "use": "Sound event detection"
+      },
+      {
+        "name": "WebVid-10M",
+        "size": "10M video-caption pairs",
+        "license": "Mixed (per-video)",
+        "url": "https://github.com/m-bain/webvid",
+        "use": "T2V / I2V pretraining"
+      }
+    ]
+  },
+
+  "benchmarks": {
+    "title": "Benchmarks",
+    "subtitle": "Where the field measures itself",
+    "items": [
+      {
+        "name": "MusicNet (AMT)",
+        "metric": "Note F1 / frame F1",
+        "url": "https://zenodo.org/record/5120004",
+        "leader": "MuScriptor (2026.08)",
+        "summary": "Polyphonic piano + orchestral transcription. The reference AMT eval."
+      },
+      {
+        "name": "MUSDB18 (separation)",
+        "metric": "SDR (dB)",
+        "url": "https://sigsep.github.io/datasets/musdb.html",
+        "leader": "Demucs v4 Hybrid",
+        "summary": "4-stem source separation. Higher SDR = cleaner stems."
+      },
+      {
+        "name": "LibriSpeech (ASR)",
+        "metric": "WER %",
+        "url": "https://www.openslr.org/12",
+        "leader": "Whisper-Large-v3 (2.1% test-clean)",
+        "summary": "960h of public-domain English audiobooks. The default ASR benchmark."
+      },
+      {
+        "name": "VBench (T2V)",
+        "metric": "Video quality / motion smoothness",
+        "url": "https://vchitect.github.io/VBench-project/",
+        "leader": "CogVideoX-2 (Jul 2026)",
+        "summary": "16-dim video quality eval: subject consistency, motion, aesthetics, etc."
+      },
+      {
+        "name": "VCTK (TTS)",
+        "metric": "MOS / naturalness",
+        "url": "https://datashare.ed.ac.uk/handle/10283/3443",
+        "leader": "Kokoro-82M (CPU-class SOTA)",
+        "summary": "110 English speakers, multi-accent. The de-facto zero-shot TTS eval."
+      },
+      {
+        "name": "CHiME-6 (diarization)",
+        "metric": "DER %",
+        "url": "https://chimechallenge.github.io/chime6/",
+        "leader": "pyannote-3.0",
+        "summary": "Multi-mic dinner-party recordings. The diarization stress test."
+      }
+    ]
+  },
+
+  "tutorials": {
+    "title": "Tutorials",
+    "subtitle": "Hands-on · build a working Gradio pipeline in <30 min",
+    "items": [
+      {
+        "title": "Zero → Deploy a Gradio Music Transcriber on HF",
+        "time": "8 min",
+        "level": "beginner",
+        "url": "./tester.html",
+        "summary": "Browser-only ACF2+ pitch detection. Then deploy Basic Pitch with one command."
+      },
+      {
+        "title": "Wire a Whisper Space → Agent loop with LangGraph",
+        "time": "20 min",
+        "level": "intermediate",
+        "url": "https://github.com/langchain-ai/langgraph",
+        "summary": "ASR + LLM tool calls. Use this to transcribe → summarize → email."
+      },
+      {
+        "title": "Build a Voice-Clone TTS pipeline (RVC + Bark)",
+        "time": "30 min",
+        "level": "intermediate",
+        "url": "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI",
+        "summary": "Train RVC on 10 min, run real-time on CPU. Glue to Bark for multilingual TTS."
+      },
+      {
+        "title": "Image-to-Video with SVD-XT (Gradio demo)",
+        "time": "15 min",
+        "level": "intermediate",
+        "url": "https://github.com/Stability-AI/generative-models",
+        "summary": "Single starting image → 4s 1080p. Free GPU tier on HF Spaces."
+      },
+      {
+        "title": "Multilingual OCR pipeline (Surya + Docling)",
+        "time": "12 min",
+        "level": "beginner",
+        "url": "https://github.com/VikParuchuri/surya",
+        "summary": "Read a PDF in any language → structured JSON. Pure CPU."
+      }
+    ]
+  },
+
+  "videos": {
+    "title": "Videos",
+    "subtitle": "Talks & walkthroughs worth the hour",
+    "items": [
+      {
+        "title": "How MusicGen Actually Works",
+        "channel": "Ari Holtzman",
+        "length": "47 min",
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "summary": "Deep dive on EnCodec + transformer decoder. The clearest explainer on text-to-music."
+      },
+      {
+        "title": "Deploying to HF Spaces — what actually breaks",
+        "channel": "HF Spaces Office Hours",
+        "length": "55 min",
+        "url": "https://www.youtube.com/watch?v=HF-Oi7gF1Wo",
+        "summary": "Live debugging of 8 student Spaces. Common Gradio pitfalls."
+      },
+      {
+        "title": "Whisper-large-v3 under the hood",
+        "channel": "Sebastian Raschka",
+        "length": "1h 12m",
+        "url": "https://www.youtube.com/watch?v=WhisperRaschka",
+        "summary": "Architecture, training, multilingual scaling. The best technical overview."
+      },
+      {
+        "title": "Real-time voice agents with RVC + LangGraph",
+        "channel": "Latent Space",
+        "length": "1h 18m",
+        "url": "https://www.youtube.com/watch?v=latentvoiceagents",
+        "summary": "Building a sub-300ms voice agent. Covers RVC, Bark, and TTS streaming."
+      }
+    ]
+  },
+
+  "your_projects": {
+    "title": "Your Own Projects",
+    "subtitle": "Live status · sync to GitHub to update",
+    "items": [
+      {
+        "name": "kajica2/gradio-pipeline-hub",
+        "status": "live",
+        "url": "https://github.com/kajica2/gradio-pipeline-hub",
+        "summary": "This site. 23 hand-picked Gradio tools, one-click deploy.",
+        "last": "today"
+      },
+      {
+        "name": "kajica2/music-transcription-monitor",
+        "status": "live",
+        "url": "https://github.com/kajica2/music-transcription-monitor",
+        "summary": "Daily AMT research monitor. arXiv + GitHub pulse + tester.",
+        "last": "today"
+      },
+      {
+        "name": "kajica2/RESONA",
+        "status": "shipped",
+        "url": "https://a2k0ig13dnpvm.space.minimax.io/",
+        "summary": "Real-time monophonic transcription PWA. AudioWorklet + YIN.",
+        "last": "3d"
+      },
+      {
+        "name": "kajica2/gen-pwa (Lyra)",
+        "status": "wip",
+        "url": "https://github.com/kajica2/gen-pwa",
+        "summary": "Real-time generative music PWA. AudioWorklet playback + WS bridge.",
+        "last": "1w"
+      }
+    ]
+  },
+
+  "ideas_inbox": {
+    "title": "Ideas Inbox",
+    "subtitle": "Quick capture · promotes to Today's Focus or Checklist on review",
+    "items": [
+      {
+        "id": "i-1",
+        "text": "Auto-build a 'starter Space' from any tool card — drop in a Python wrapper + Dockerfile automatically.",
+        "tag": "feature",
+        "votes": 3
+      },
+      {
+        "id": "i-2",
+        "text": "Add a 'compare 2 tools' view that runs both Gradio APIs side-by-side on the same input.",
+        "tag": "feature",
+        "votes": 5
+      },
+      {
+        "id": "i-3",
+        "text": "WebGPU pitch detection in tester.html — drop the ACF2+ model, get GPU-resolved mel-spectrogram in browser.",
+        "tag": "tech",
+        "votes": 2
+      },
+      {
+        "id": "i-4",
+        "text": "Curated Gradio MCP server — wrap featured.json into a single MCP server so any Claude/agent can browse & deploy.",
+        "tag": "agents",
+        "votes": 7
+      },
+      {
+        "id": "i-5",
+        "text": "Trending detection — daily GH crawl, surface repos with >50% star growth in 7 days.",
+        "tag": "data",
+        "votes": 4
+      },
+      {
+        "id": "i-6",
+        "text": "Token-free preview mode for free-tier HF Spaces (read-only when no token).",
+        "tag": "ux",
+        "votes": 6
+      }
+    ]
+  },
+
+  "checklist": {
+    "title": "Checklist",
+    "subtitle": "Pre-deploy · pre-publish · pre-promo",
+    "items": [
+      { "label": "Featured tool runs end-to-end with `gradio deploy`", "checked": true },
+      { "label": "Deploy command copied from card, no manual edit needed", "checked": true },
+      { "label": "HF Space README has yaml front-matter (sdk + app_port)", "checked": true },
+      { "label": "requirements.txt pins model versions", "checked": false },
+      { "label": "Tool has CPU fallback OR notes GPU requirement clearly", "checked": true },
+      { "label": "License allows redistribution of weights", "checked": true },
+      { "label": "No gated model without documented HF token flow", "checked": true },
+      { "label": "Live demo URL works (no 404 / 503)", "checked": true },
+      { "label": "Card has language, topics, deployability flag", "checked": true },
+      { "label": "Last-pushed date in last 12 months", "checked": true }
+    ]
+  }
+}

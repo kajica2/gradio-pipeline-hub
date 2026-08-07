@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Search, Sun, Moon, Github, Plus } from 'lucide-react';
+import { Search, Sun, Moon, Github, Plus, LayoutGrid, Activity } from 'lucide-react';
 import ToolCard from './components/ToolCard.jsx';
 import ToolModal from './components/ToolModal.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import Toast from './components/Toast.jsx';
+import Dashboard from './components/Dashboard.jsx';
 import { fetchRepoMeta } from './lib/github.js';
 import { readFiltersFromUrl, writeFiltersToUrl } from './lib/url.js';
 import { categorizeTool, getCategory } from './lib/categorize.js';
@@ -17,13 +18,42 @@ const SORTS = {
   name: (a, b) => (a.repo || a.name).localeCompare(b.repo || b.name),
 };
 
+const TABS = [
+  { id: 'hub', label: 'Hub', href: '#hub' },
+  { id: 'tools', label: 'Tools', href: '#tools' },
+];
+
 export default function App() {
+  const [tab, setTab] = useState(() => {
+    if (typeof window === 'undefined') return 'hub';
+    const h = window.location.hash;
+    if (h === '#tools') return 'tools';
+    return 'hub';
+  });
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(() => readFiltersFromUrl({ sort: 'stars' }));
   const [openTool, setOpenTool] = useState(null);
   const [toast, setToast] = useState('');
   const [_, forceRender] = useState(0);
+
+  // Hash-based tab routing
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash;
+      if (h === '#tools') setTab('tools');
+      else if (h === '#hub') setTab('hub');
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const handleTab = (id) => {
+    setTab(id);
+    if (typeof window !== 'undefined') {
+      window.location.hash = id;
+    }
+  };
 
   // Persist filters to URL
   useEffect(() => {
@@ -42,7 +72,6 @@ export default function App() {
       setLoading(true);
       const merged = featuredData.tools.map((t) => ({
         ...t,
-        // initialize with a fallback so cards render immediately
         name: `${t.owner}/${t.repo}`,
         stars: 0,
         forks: 0,
@@ -55,7 +84,6 @@ export default function App() {
       setTools(merged);
       setLoading(false);
 
-      // Then enrich in the background
       for (const t of merged) {
         try {
           const meta = await fetchRepoMeta(t.owner, t.repo);
@@ -73,7 +101,6 @@ export default function App() {
     };
   }, []);
 
-  // Filter + sort
   const visible = useMemo(() => {
     const q = filters.q?.toLowerCase().trim() || '';
     const cats = filters.cats || [];
@@ -100,7 +127,6 @@ export default function App() {
       .sort(SORTS[filters.sort] || SORTS.stars);
   }, [tools, filters]);
 
-  // Per-category counts (for sidebar)
   const counts = useMemo(() => {
     const c = {};
     for (const t of tools) {
@@ -121,9 +147,7 @@ export default function App() {
   const handleSortChange = (s) => setFilters((f) => ({ ...f, sort: s }));
   const handleSearchChange = (e) => setFilters((f) => ({ ...f, q: e.target.value }));
 
-  const showToast = useCallback((msg) => {
-    setToast(msg);
-  }, []);
+  const showToast = useCallback((msg) => setToast(msg), []);
 
   const handleCopy = useCallback(
     async (text) => {
@@ -157,7 +181,7 @@ export default function App() {
       <header className="site-header">
         <div className="site-header__inner">
           <div className="brand">
-            <a href="./" style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', color: 'inherit', opacity: 1 }}>
+            <a href="#hub" onClick={() => handleTab('hub')} style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', color: 'inherit', opacity: 1 }}>
               <div className="brand__mark" aria-hidden="true">G</div>
               <div className="brand__text">
                 <h1>Gradio Pipeline Hub</h1>
@@ -165,20 +189,40 @@ export default function App() {
               </div>
             </a>
           </div>
+          <nav className="header-nav" aria-label="Primary">
+            <a
+              href="#hub"
+              className={`header-nav__link ${tab === 'hub' ? 'is-active' : ''}`}
+              onClick={() => handleTab('hub')}
+            >
+              <Activity size={13} /> Hub
+            </a>
+            <a
+              href="#tools"
+              className={`header-nav__link ${tab === 'tools' ? 'is-active' : ''}`}
+              onClick={() => handleTab('tools')}
+            >
+              <LayoutGrid size={13} /> Tools
+            </a>
+            <a href="./tester.html" className="header-nav__link">Tester</a>
+            <a href="./live.html" className="header-nav__link">Live</a>
+          </nav>
           <div className="header-actions">
-            <div className="search" role="search">
-              <Search size={14} className="search__icon" />
-              <input
-                type="search"
-                placeholder="Search tools, categories, topics…"
-                value={filters.q || ''}
-                onChange={handleSearchChange}
-                aria-label="Search"
-              />
-            </div>
+            {tab === 'tools' && (
+              <div className="search" role="search">
+                <Search size={14} className="search__icon" />
+                <input
+                  type="search"
+                  placeholder="Search tools, categories, topics…"
+                  value={filters.q || ''}
+                  onChange={handleSearchChange}
+                  aria-label="Search"
+                />
+              </div>
+            )}
             <a
               className="btn"
-              href="https://github.com/new?template="
+              href="https://github.com/kajica2/gradio-pipeline-hub/issues/new?template=tool-submission.yml"
               target="_blank"
               rel="noopener"
               title="Submit a tool"
@@ -208,82 +252,89 @@ export default function App() {
       </header>
 
       <main>
-        <div className="layout">
-          <Sidebar
-            categories={categoriesData.categories}
-            counts={counts}
-            selected={filters.cats || []}
-            onToggle={handleToggleCategory}
-            sort={filters.sort}
-            onSortChange={handleSortChange}
-          />
+        {tab === 'hub' && <Dashboard />}
 
-          <section>
-            <div className="toolbar">
-              <span className="toolbar__count">
-                {loading
-                  ? 'Loading tools…'
-                  : `${visible.length} of ${tools.length} tools`}
-              </span>
-              {hasActiveFilters && (
-                <div className="toolbar__filters">
-                  {filters.q && (
-                    <button
-                      className="filter-chip"
-                      onClick={() => setFilters((f) => ({ ...f, q: '' }))}
-                    >
-                      q: {filters.q} <span className="filter-chip__x">✕</span>
-                    </button>
-                  )}
-                  {(filters.cats || []).map((id) => {
-                    const cat = getCategory(id);
-                    return (
+        {tab === 'tools' && (
+          <div className="layout">
+            <Sidebar
+              categories={categoriesData.categories}
+              counts={counts}
+              selected={filters.cats || []}
+              onToggle={handleToggleCategory}
+              sort={filters.sort}
+              onSortChange={handleSortChange}
+            />
+
+            <section>
+              <div className="toolbar">
+                <span className="toolbar__count">
+                  {loading
+                    ? 'Loading tools…'
+                    : `${visible.length} of ${tools.length} tools`}
+                </span>
+                {hasActiveFilters && (
+                  <div className="toolbar__filters">
+                    {filters.q && (
                       <button
-                        key={id}
                         className="filter-chip"
-                        onClick={() => handleToggleCategory(id)}
+                        onClick={() => setFilters((f) => ({ ...f, q: '' }))}
                       >
-                        {cat?.label || id} <span className="filter-chip__x">✕</span>
+                        q: {filters.q} <span className="filter-chip__x">✕</span>
                       </button>
-                    );
-                  })}
-                  <button className="btn btn--sm btn--ghost" onClick={handleClearFilters}>
-                    Clear all
-                  </button>
+                    )}
+                    {(filters.cats || []).map((id) => {
+                      const cat = getCategory(id);
+                      return (
+                        <button
+                          key={id}
+                          className="filter-chip"
+                          onClick={() => handleToggleCategory(id)}
+                        >
+                          {cat?.label || id} <span className="filter-chip__x">✕</span>
+                        </button>
+                      );
+                    })}
+                    <button className="btn btn--sm btn--ghost" onClick={handleClearFilters}>
+                      Clear all
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {loading ? (
+                <div className="grid">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="skeleton" />
+                  ))}
+                </div>
+              ) : visible.length === 0 ? (
+                <div className="empty">
+                  <h3>No tools match your filters</h3>
+                  <p>Try clearing filters or searching for a different term.</p>
+                </div>
+              ) : (
+                <div className="grid">
+                  {visible.map((t) => (
+                    <ToolCard key={t.id} tool={t} onOpen={(tool) => setOpenTool(tool)} />
+                  ))}
                 </div>
               )}
-            </div>
-
-            {loading ? (
-              <div className="grid">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="skeleton" />
-                ))}
-              </div>
-            ) : visible.length === 0 ? (
-              <div className="empty">
-                <h3>No tools match your filters</h3>
-                <p>Try clearing filters or searching for a different term.</p>
-              </div>
-            ) : (
-              <div className="grid">
-                {visible.map((t) => (
-                  <ToolCard key={t.id} tool={t} onOpen={(tool) => setOpenTool(tool)} />
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+            </section>
+          </div>
+        )}
       </main>
 
       <footer className="site-footer">
         <span>gradio-pipeline-hub</span>
         <span>
           <span className="dot">·</span>
-          v0.1<span className="dot">·</span>
-          <a href="https://huggingface.co" target="_blank" rel="noopener">HF Spaces</a>
+          v0.2 · daily dashboard + tools
           <span className="dot">·</span>
           <a href="./tester.html">Tester</a>
+          <span className="dot">·</span>
+          <a href="./live.html">Live</a>
+          <span className="dot">·</span>
+          <a href="https://huggingface.co" target="_blank" rel="noopener">HF Spaces</a>
         </span>
       </footer>
 

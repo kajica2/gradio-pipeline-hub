@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content "dark light" />
+    <title>Live — Gradio Pipeline Hub</title>
+    <meta
+      name="description"
+      content="A fully working Gradio music-transcription app, embedded live from Hugging Face Spaces. No local Python, no setup. Just visit the page."
+    />
+    <meta property="og:title" content="Live Gradio Transcription — Gradio Pipeline Hub" />
+    <meta
+      property="og:description"
+      content="A fully working Gradio music-transcription app, embedded live. No local Python, no setup. Just visit."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%237dd3c0'/%3E%3Ctext x='50' y='72' font-size='72' font-family='ui-monospace,monospace' font-weight='700' text-anchor='middle' fill='%230a0b10'%3EG%3Ctext%3E%3C/svg%3E"
+    />
+    <style>
+      /* ============================================================
+         live.html — self-contained (no Vite, no Tailwind)
+         Style tokens match src/styles.css
+         ============================================================ */
+      :root {
+        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+          "Liberation Mono", monospace;
+        --fs-xs: 11px;
+        --fs-sm: 13px;
+        --fs-base: 15px;
+        --fs-md: 17px;
+        --fs-lg: 20px;
+        --fs-xl: 28px;
+        --fs-2xl: 36px;
+        --s-1: 4px;
+        --s-2: 8px;
+        --s-3: 12px;
+        --s-4: 16px;
+        --s-5: 24px;
+        --s-6: 32px;
+        --s-7: 48px;
+        --r-sm: 6px;
+        --r-md: 10px;
+        --r-lg: 14px;
+        --r-pill: 999px;
+        --t-fast: 120ms ease;
+        --t-med: 220ms ease;
+        --container: 1180px;
+        --sidebar-w: 248px;
+      }
+      [data-theme="dark"] {
+        --bg: #0a0b10;
+        --bg-grad-1: #0e1118;
+        --bg-grad-2: #0a0b10;
+        --surface: #13141b;
+        --surface-2: #181a24;
+        --surface-hover: #1c1f2b;
+        --border: #252838;
+        --border-strong: #313446;
+        --text: #e8e9ed;
+        --text-dim: #9094a6;
+        --text-faint: #5b5f70;
+        --accent: #7dd3c0;
+        --accent-2: #5fb8a3;
+        --accent-dim: rgba(125, 211, 192, 0.14);
+        --accent-border: rgba(125, 211, 192, 0.32);
+        --status-pending-bg: #1f2230;
+        --status-pending-fg: #8b8fa3;
+        --status-ok-bg: rgba(74, 222, 128, 0.12);
+        --status-ok-fg: #4ade80;
+        --status-warn-bg: rgba(251, 191, 36, 0.12);
+        --status-warn-fg: #fbbf24;
+        --status-err-bg: rgba(248, 113, 113, 0.12);
+        --status-err-fg: #f87171;
+        --code-bg: #0d0e15;
+        --shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset,
+          0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      [data-theme="light"] {
+        --bg: #f6f6f4;
+        --bg-grad-1: #ffffff;
+        --bg-grad-2: #f3f3ef;
+        --surface: #ffffff;
+        --surface-2: #fafaf7;
+        --surface-hover: #f4f4f0;
+        --border: #e6e5df;
+        --border-strong: #d0cfc8;
+        --text: #1a1a1f;
+        --text-dim: #5f5f6a;
+        --text-faint: #8c8c95;
+        --accent: #0d8f7e;
+        --accent-2: #0a6e62;
+        --accent-dim: rgba(13, 143, 126, 0.1);
+        --accent-border: rgba(13, 143, 126, 0.28);
+        --status-pending-bg: #ecebe5;
+        --status-pending-fg: #6c6c75;
+        --status-ok-bg: rgba(22, 163, 74, 0.12);
+        --status-ok-fg: #15803d;
+        --status-warn-bg: rgba(217, 119, 6, 0.12);
+        --status-warn-fg: #b45309;
+        --status-err-bg: rgba(220, 38, 38, 0.12);
+        --status-err-fg: #b91c1c;
+        --code-bg: #f4f4ef;
+        --shadow: 0 1px 0 rgba(0, 0, 0, 0.02) inset, 0 4px 14px rgba(0, 0, 0, 0.06);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--font-sans);
+        font-size: var(--fs-base);
+        line-height: 1.55;
+        color: var(--text);
+        background: radial-gradient(1200px 600px at 80% -10%, var(--accent-dim), transparent 60%),
+          linear-gradient(180deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: background-color var(--t-med), color var(--t-med);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: opacity var(--t-fast);
+      }
+      a:hover { opacity: 0.8; }
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      ::selection {
+        background: var(--accent-dim);
+        color: var(--text);
+      }
+      .live-shell {
+        max-width: var(--container);
+        margin: 0 auto;
+        padding: 0 var(--s-5);
+      }
+      .site-header {
+        padding: var(--s-6) 0 var(--s-5);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: var(--s-4);
+      }
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--s-4);
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: var(--s-3);
+      }
+      .brand__mark {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--r-md);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        display: grid;
+        place-items: center;
+        color: #0a0b10;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 4px 12px var(--accent-dim);
+        flex-shrink: 0;
+      }
+      .brand__text h1 {
+        font-size: var(--fs-xl);
+        line-height: 1.2;
+        margin: 0 0 2px 0;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .brand__text p {
+        margin: 0;
+        color: var(--text-dim);
+        font-size: var(--fs-sm);
+        font-family: var(--font-mono);
+      }
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: var(--s-1);
+        margin-left: var(--s-3);
+      }
+      .header-nav__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        border-radius: var(--r-sm);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        color: var(--text-dim);
+        text-decoration: none;
+        transition: all var(--t-fast);
+        white-space: nowrap;
+      }
+      .header-nav__link:hover {
+        color: var(--text);
+        background: var(--surface-hover);
+        opacity: 1;
+      }
+      .header-nav__link.is-active {
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--s-3);
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        font-weight: 500;
+        transition: all var(--t-fast);
+        white-space: nowrap;
+        text-decoration: none;
+      }
+      .btn:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-strong);
+        opacity: 1;
+      }
+      .btn--sm {
+        padding: 4px 10px;
+        font-size: var(--fs-xs);
+      }
+      .btn--ghost {
+        background: transparent;
+      }
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--s-2);
+        padding: var(--s-2) var(--s-3);
+        border: 1px solid var(--border);
+        border-radius: var(--r-pill);
+        background: var(--surface);
+        color: var(--text-dim);
+        font-size: var(--fs-sm);
+        transition: all var(--t-fast);
+      }
+      .theme-toggle:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      .theme-toggle__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      [data-theme="dark"] .theme-toggle__icon--sun { display: block; }
+      [data-theme="dark"] .theme-toggle__icon--moon { display: none; }
+      [data-theme="light"] .theme-toggle__icon--sun { display: none; }
+      [data-theme="light"] .theme-toggle__icon--moon { display: block; }
+      .live-eyebrow {
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        margin: 0 0 6px 0;
+        font-weight: 600;
+      }
+      .live-title {
+        font-size: var(--fs-2xl);
+        line-height: 1.2;
+        margin: 0;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .live-sub {
+        margin: var(--s-2) 0 var(--s-5) 0;
+        color: var(--text-dim);
+        font-size: var(--fs-base);
+        max-width: 70ch;
+        line-height: 1.55;
+      }
+      .live-embed {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        margin-bottom: var(--s-5);
+        box-shadow: var(--shadow);
+      }
+      .live-embed__bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--s-3) var(--s-4);
+        background: var(--code-bg);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        color: var(--text-faint);
+        flex-wrap: wrap;
+        gap: var(--s-2);
+      }
+      .live-embed__bar-left {
+        display: flex;
+        align-items: center;
+        gap: var(--s-2);
+      }
+      .live-embed__bar-right {
+        display: flex;
+        gap: var(--s-2);
+      }
+      .live-embed__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--status-ok-fg);
+        animation: live-pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes live-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      .live-embed__frame {
+        display: block;
+        width: 100%;
+        height: 760px;
+        border: 0;
+        background: var(--bg);
+      }
+      .live-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: var(--s-5);
+        margin-bottom: var(--s-4);
+        box-shadow: var(--shadow);
+      }
+      .live-card h3 {
+        margin: 0 0 var(--s-2) 0;
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .live-card p {
+        margin: 0 0 var(--s-2) 0;
+        font-size: var(--fs-sm);
+        color: var(--text-dim);
+        line-height: 1.55;
+      }
+      .live-card code {
+        font-family: var(--font-mono);
+        background: var(--code-bg);
+        padding: 1px 6px;
+        border-radius: var(--r-sm);
+        font-size: 12px;
+        color: var(--accent);
+        border: 1px solid var(--border);
+      }
+      .live-steps {
+        margin: var(--s-3) 0 0 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: step;
+      }
+      .live-steps li {
+        counter-increment: step;
+        padding: var(--s-2) 0 var(--s-2) 32px;
+        position: relative;
+        font-size: var(--fs-sm);
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+      }
+      .live-steps li:last-child { border-bottom: 0; }
+      .live-steps li::before {
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: var(--s-2);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--accent-dim);
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        font-weight: 700;
+      }
+      .live-token-form {
+        display: flex;
+        gap: var(--s-2);
+        align-items: stretch;
+        margin-top: var(--s-3);
+        flex-wrap: wrap;
+      }
+      .live-token-form input {
+        flex: 1;
+        min-width: 240px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        background: var(--code-bg);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: var(--fs-sm);
+        outline: none;
+      }
+      .live-token-form input:focus { border-color: var(--accent); }
+      .live-status {
+        display: flex;
+        align-items: center;
+        gap: var(--s-2);
+        margin-top: var(--s-3);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+        color: var(--text-faint);
+        flex-wrap: wrap;
+      }
+      .live-status__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-faint);
+      }
+      .live-status__dot--on { background: var(--status-ok-fg); }
+      .live-status__dot--off { background: var(--status-err-fg); }
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--s-3);
+        margin-top: var(--s-7);
+        padding: var(--s-5) 0;
+        border-top: 1px solid var(--border);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: var(--fs-xs);
+      }
+      .site-footer .dot {
+        color: var(--text-faint);
+        margin: 0 8px;
+      }
+      @media (max-width: 720px) {
+        .live-embed__frame { height: 600px; }
+        .header-nav { order: 3; width: 100%; justify-content: center; }
+        .header-actions { order: 2; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="live-shell">
+      <header class="site-header">
+        <div class="site-header__inner">
+          <div class="brand">
+            <a href="./" style="display: flex; align-items: center; gap: var(--s-3); color: inherit; opacity: 1;">
+              <div class="brand__mark" aria-hidden="true">G</div>
+              <div class="brand__text">
+                <h1>Gradio Pipeline Hub</h1>
+                <p>One-click deploy · zero local setup</p>
+              </div>
+            </a>
+          </div>
+          <nav class="header-nav" aria-label="Primary">
+            <a href="./#hub" class="header-nav__link">Hub</a>
+            <a href="./#tools" class="header-nav__link">Tools</a>
+            <a href="./tester.html" class="header-nav__link">Tester</a>
+            <a href="./live.html" class="header-nav__link is-active">Live</a>
+          </nav>
+          <div class="header-actions">
+            <a class="btn" href="https://github.com/kajica2/gradio-pipeline-hub" target="_blank" rel="noopener" title="View on GitHub">GitHub</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+              <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              <span id="theme-label">Theme</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main style="padding: var(--s-5) 0 var(--s-7) 0;">
+        <p class="live-eyebrow">01 / Live demo</p>
+        <h2 class="live-title">Text-to-Music — running right now</h2>
+        <p class="live-sub">
+          A fully working Gradio app, embedded from
+          <a href="https://huggingface.co/spaces/facebook/MusicGen" target="_blank" rel="noopener">HF Spaces</a>.
+          Type a description, hit Generate, and Meta's MusicGen returns 15s of audio. No install.
+          No Python. No GPU on your side. The heavy lifting runs on Hugging Face's free CPU tier.
+        </p>
+
+        <div class="live-embed">
+          <div class="live-embed__bar">
+            <div class="live-embed__bar-left">
+              <span class="live-embed__dot" aria-hidden="true"></span>
+              <span>facebook/musicgen</span>
+              <span style="color: var(--text-faint);">·</span>
+              <span>spaces.huggingface.co</span>
+            </div>
+            <div class="live-embed__bar-right">
+              <a class="btn btn--sm" href="https://huggingface.co/spaces/facebook/MusicGen" target="_blank" rel="noopener">Open in HF ↗</a>
+            </div>
+          </div>
+          <iframe
+            class="live-embed__frame"
+            src="https://facebook-musicgen.hf.space/?__theme=system"
+            title="Meta MusicGen — live"
+            allow="microphone; clipboard-read; clipboard-write"
+            loading="eager"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+
+        <div class="live-card">
+          <h3>How this works</h3>
+          <p>
+            The <code>&lt;iframe&gt;</code> above loads a public Gradio Space directly from
+            <code>huggingface.co</code>. Your browser streams the text prompt to HF, HF runs the
+            model on their CPU pool, and the audio streams back. Zero deploy, zero install on
+            your end.
+          </p>
+          <ol class="live-steps">
+            <li>
+              <strong>Type a description</strong> of the music you want ("80s synthwave with
+              drum machine, 120 BPM"). Be specific — instruments, tempo, mood all help.
+            </li>
+            <li>
+              <strong>Hit Generate</strong>. ~15 s of stereo audio comes back. Play it inline,
+              download as WAV.
+            </li>
+            <li>
+              <strong>Want your own copy?</strong> Hit "Copy full command" on any card in the
+              <a href="./#tools">Tools</a> tab — paste it once with your HF token and you've got
+              a personal Space in &lt; 2 minutes.
+            </li>
+          </ol>
+        </div>
+
+        <div class="live-card">
+          <h3>Set your HF token (optional · for deploying your own)</h3>
+          <p>
+            Browsing is token-free. The token is only used if you want to
+            <strong>deploy a personal copy of a tool</strong> via the <code>gradio deploy</code>
+            command. We never send your token to any third party — it stays in your browser's
+            <code>localStorage</code>.
+          </p>
+          <div class="live-token-form">
+            <input
+              type="password"
+              id="hf-token"
+              placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="btn" id="hf-token-save">Save</button>
+            <button class="btn btn--ghost" id="hf-token-clear">Clear</button>
+          </div>
+          <div class="live-status">
+            <span class="live-status__dot" id="hf-token-status-dot"></span>
+            <span id="hf-token-status">No token saved</span>
+            <span style="color: var(--text-faint);">·</span>
+            <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener" style="color: var(--accent);">
+              Get a write token ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="live-card">
+          <h3>Alternative: try the browser-only tester</h3>
+          <p>
+            If the embedded Space is slow (free tier queues up), try the
+            <a href="./tester.html">Solo Transcription Tester</a>. It does monophonic pitch
+            detection <strong>in your browser</strong> with Web Audio + ACF2+. No network call
+            at all — completely private, instant.
+          </p>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <span>gradio-pipeline-hub</span>
+        <span>
+          <span class="dot">·</span>
+          v0.2 · live embed
+          <span class="dot">·</span>
+          <a href="./">Hub</a>
+          <span class="dot">·</span>
+          <a href="./#tools">Tools</a>
+          <span class="dot">·</span>
+          <a href="./tester.html">Tester</a>
+        </span>
+      </footer>
+    </div>
+
+    <script>
+      // Theme toggle (matches src/lib/theme.js)
+      (function () {
+        var KEY = 'gradio-hub-theme';
+        var root = document.documentElement;
+        function apply(theme) {
+          root.setAttribute('data-theme', theme);
+          var label = document.getElementById('theme-label');
+          if (label) label.textContent = theme === 'dark' ? 'Light' : 'Dark';
+        }
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (e) {}
+        var initial = saved || 'dark';
+        apply(initial);
+        var btn = document.getElementById('theme-toggle');
+        if (btn) {
+          btn.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            apply(next);
+            try { localStorage.setItem(KEY, next); } catch (e) {}
+          });
+        }
+      })();
+
+      // HF token handling
+      (function () {
+        var KEY = 'gradio-hub-hf-token';
+        var input = document.getElementById('hf-token');
+        var saveBtn = document.getElementById('hf-token-save');
+        var clearBtn = document.getElementById('hf-token-clear');
+        var statusDot = document.getElementById('hf-token-status-dot');
+        var statusText = document.getElementById('hf-token-status');
+        function refresh() {
+          var t = null;
+          try { t = localStorage.getItem(KEY); } catch (e) {}
+          if (t && t.startsWith('hf_')) {
+            input.value = t;
+            statusDot.className = 'live-status__dot live-status__dot--on';
+            statusText.textContent = 'Token saved · ' + t.slice(0, 6) + '…' + t.slice(-4);
+          } else {
+            input.value = '';
+            statusDot.className = 'live-status__dot';
+            statusText.textContent = 'No token saved';
+          }
+        }
+        refresh();
+        saveBtn.addEventListener('click', function () {
+          var v = (input.value || '').trim();
+          if (!v) {
+            try { localStorage.removeItem(KEY); } catch (e) {}
+            refresh();
+            return;
+          }
+          if (!v.startsWith('hf_')) {
+            statusDot.className = 'live-status__dot live-status__dot--off';
+            statusText.textContent = 'Invalid token — must start with hf_';
+            return;
+          }
+          try { localStorage.setItem(KEY, v); } catch (e) {}
+          refresh();
+        });
+        clearBtn.addEventListener('click', function () {
+          try { localStorage.removeItem(KEY); } catch (e) {}
+          refresh();
+        });
+      })();
+    </script>
+  </body>
+</html>

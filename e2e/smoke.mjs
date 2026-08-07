@@ -1,7 +1,9 @@
 // Puppeteer smoke test for the Gradio Pipeline Hub
-// - Loads index.html, verifies cards render
+// - Loads index.html, verifies Dashboard (Hub) renders with all 12 sections
+// - Switches to Tools tab, verifies cards render
 // - Opens a modal and verifies the deploy command is copyable
 // - Loads tester.html, clicks the sample button, runs analysis
+// - Loads live.html, verifies the iframe + token form
 // - Takes screenshots for visual verification
 import puppeteer from 'puppeteer';
 import { mkdirSync } from 'fs';
@@ -31,24 +33,57 @@ const fail = (msg) => {
   process.exit(1);
 };
 
-console.log('=== Test 1: Index page loads, cards render ===');
+console.log('=== Test 1: Index page loads, Dashboard (Hub) renders ===');
 await page.goto(BASE + '/', { waitUntil: 'networkidle2', timeout: 30000 });
 await sleep(800);
 
-// Wait for the React app to mount and the grid to populate
-await page.waitForSelector('.tool-card', { timeout: 15000 });
-const cardCount = await page.$$eval('.tool-card', (els) => els.length);
-console.log('  → cards rendered:', cardCount);
-if (cardCount < 5) fail(`expected at least 5 cards, got ${cardCount}`);
+// Default is Hub tab — should have dashboard sections
+await page.waitForSelector('.dash-root', { timeout: 15000 });
+const sectionCount = await page.$$eval('.dash-section', (els) => els.length);
+console.log('  → dashboard sections rendered:', sectionCount);
+if (sectionCount < 12) fail(`expected 12 dashboard sections, got ${sectionCount}`);
+
+// Verify section titles
+const sectionTitles = await page.$$eval('.dash-section-title', (els) => els.map((e) => e.textContent.trim()));
+console.log('  → sections:', sectionTitles.join(' · '));
+const expectedSections = [
+  "Today's Focus",
+  'Latest Papers',
+  'Trending GitHub Repositories',
+  'Research Groups',
+  'Agent Frameworks',
+  'Datasets',
+  'Benchmarks',
+  'Tutorials',
+  'Videos',
+  'Your Own Projects',
+  'Ideas Inbox',
+  'Checklist',
+];
+for (const exp of expectedSections) {
+  if (!sectionTitles.some((t) => t.includes(exp))) fail(`missing section: ${exp}`);
+}
 
 // Verify the brand header is present
 const brand = await page.$eval('.brand h1', (el) => el.textContent);
 console.log('  → brand:', brand);
 if (!brand.includes('Gradio')) fail('brand mismatch');
 
-await page.screenshot({ path: ART + 'index-initial.png', fullPage: false });
+await page.screenshot({ path: ART + '01-hub.png', fullPage: false });
+await page.screenshot({ path: ART + '01-hub-full.png', fullPage: true });
 
-console.log('=== Test 2: Search filter narrows the grid ===');
+console.log('=== Test 2: Switch to Tools tab, cards render ===');
+const toolsLink = await page.$('a[href="#tools"]');
+if (!toolsLink) fail('no #tools link in nav');
+await toolsLink.click();
+await sleep(500);
+await page.waitForSelector('.tool-card', { timeout: 15000 });
+const cardCount = await page.$$eval('.tool-card', (els) => els.length);
+console.log('  → cards rendered:', cardCount);
+if (cardCount < 10) fail(`expected at least 10 cards, got ${cardCount}`);
+await page.screenshot({ path: ART + '02-tools.png', fullPage: false });
+
+console.log('=== Test 3: Search filter narrows the grid ===');
 const search = await page.$('input[type="search"]');
 await search.click();
 await search.type('whisper');
@@ -57,7 +92,7 @@ const filteredCount = await page.$$eval('.tool-card', (els) => els.length);
 console.log('  → search "whisper" → cards:', filteredCount);
 if (filteredCount === 0) fail('search returned 0 results');
 if (filteredCount >= cardCount) fail('search did not narrow results');
-await page.screenshot({ path: ART + 'index-search.png' });
+await page.screenshot({ path: ART + '03-tools-search.png' });
 
 // Clear search via the React-controlled input setter
 async function clearSearch() {
@@ -72,7 +107,7 @@ async function clearSearch() {
 }
 await clearSearch();
 
-console.log('=== Test 3: Category filter ===');
+console.log('=== Test 4: Category filter ===');
 const catPills = await page.$$('.cat-pill');
 if (catPills.length === 0) fail('no category pills in sidebar');
 const firstCatLabel = await page.$eval('.cat-pill .cat-pill__label', (el) => el.textContent);
@@ -82,13 +117,13 @@ await sleep(400);
 const catCount = await page.$$eval('.tool-card', (els) => els.length);
 console.log('  → cards after category click:', catCount);
 if (catCount === 0) fail('category filter returned 0');
-await page.screenshot({ path: ART + 'index-category.png' });
+await page.screenshot({ path: ART + '04-tools-category.png' });
 
 // Toggle off
 await catPills[0].click();
 await sleep(300);
 
-console.log('=== Test 4: Modal opens with deploy command ===');
+console.log('=== Test 5: Modal opens with deploy command ===');
 const firstCard = await page.$('.tool-card');
 await firstCard.click();
 await page.waitForSelector('.modal', { timeout: 5000 });
@@ -101,7 +136,7 @@ console.log('  → deploy command present:', deployCmd.includes('gradio deploy')
 if (!deployCmd.includes('gradio deploy')) fail('deploy command missing');
 if (!deployCmd.includes('YOUR_HF_TOKEN')) fail('YOUR_HF_TOKEN placeholder missing');
 
-await page.screenshot({ path: ART + 'index-modal.png', fullPage: false });
+await page.screenshot({ path: ART + '05-modal.png', fullPage: false });
 
 // Close modal
 const closeBtn = await page.$('.modal__close');
@@ -110,20 +145,20 @@ await sleep(300);
 const modalGone = await page.$('.modal');
 if (modalGone) fail('modal did not close');
 
-console.log('=== Test 5: Theme toggle ===');
+console.log('=== Test 6: Theme toggle ===');
 const themeBefore = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
 await page.click('.theme-toggle');
 await sleep(200);
 const themeAfter = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
 console.log('  → theme:', themeBefore, '→', themeAfter);
 if (themeBefore === themeAfter) fail('theme did not toggle');
-await page.screenshot({ path: ART + 'index-light.png' });
+await page.screenshot({ path: ART + '06-tools-light.png' });
 
 // Toggle back
 await page.click('.theme-toggle');
 await sleep(200);
 
-console.log('=== Test 6: Tester page loads and analyzes sample ===');
+console.log('=== Test 7: Tester page loads and analyzes sample ===');
 await page.goto(BASE + '/tester.html', { waitUntil: 'networkidle2' });
 await sleep(500);
 
@@ -150,9 +185,51 @@ const desc = await page.$eval('#description', (el) => el.textContent);
 if (!desc.includes('MULTI-INSTRUMENT ARRANGEMENT')) fail('description not generated');
 if (!desc.includes('C major')) fail('expected C major key in description');
 
-await page.screenshot({ path: ART + 'tester-after-analysis.png', fullPage: false });
+await page.screenshot({ path: ART + '07-tester.png', fullPage: false });
 
-console.log('=== Test 7: Console error check ===');
+console.log('=== Test 8: Live page loads with iframe + token form ===');
+await page.goto(BASE + '/live.html', { waitUntil: 'networkidle2' });
+await sleep(800);
+
+const liveTitle = await page.$eval('.live-title', (el) => el.textContent);
+console.log('  → live title:', liveTitle);
+if (!liveTitle.toLowerCase().includes('text-to-music')) fail('live title wrong');
+
+const iframe = await page.$('.live-embed__frame');
+if (!iframe) fail('no iframe on live page');
+const iframeSrc = await page.$eval('.live-embed__frame', (el) => el.src);
+console.log('  → iframe src:', iframeSrc);
+if (!iframeSrc.includes('huggingface.co') && !iframeSrc.includes('hf.space')) {
+  fail('iframe not pointing to HF Space');
+}
+
+const tokenInput = await page.$('#hf-token');
+if (!tokenInput) fail('no HF token input');
+const saveBtn = await page.$('#hf-token-save');
+if (!saveBtn) fail('no token save button');
+
+await page.screenshot({ path: ART + '08-live.png', fullPage: false });
+
+console.log('=== Test 9: HF token persistence ===');
+await page.click('#hf-token');
+await page.type('#hf-token', 'hf_FAKE_TOKEN_FOR_TEST_xxxxxxxxxxxxxxxxxxxx');
+await page.click('#hf-token-save');
+await sleep(300);
+const statusText = await page.$eval('#hf-token-status', (el) => el.textContent);
+console.log('  → token status:', statusText);
+if (!/saved/i.test(statusText)) fail('token did not save');
+
+const stored = await page.evaluate(() => localStorage.getItem('gradio-hub-hf-token'));
+console.log('  → stored:', stored);
+if (stored !== 'hf_FAKE_TOKEN_FOR_TEST_xxxxxxxxxxxxxxxxxxxx') fail('token not persisted');
+
+// Clear and verify
+await page.click('#hf-token-clear');
+await sleep(300);
+const cleared = await page.evaluate(() => localStorage.getItem('gradio-hub-hf-token'));
+if (cleared) fail('token not cleared');
+
+console.log('=== Test 10: Console error check ===');
 if (errors.length > 0) {
   console.log('  → errors captured:');
   for (const e of errors) console.log('    -', e);
@@ -161,7 +238,7 @@ if (errors.length > 0) {
   // JS errors, not network 4xx for background enrichment.
   const hard = errors.filter(
     (e) =>
-      !/github|429|403|forbidden|rate|huggingface|favicon/i.test(e) &&
+      !/github|429|403|forbidden|rate|huggingface|favicon|hf\.space|x-frame|Refused/i.test(e) &&
       !/Failed to load resource/i.test(e)
   );
   if (hard.length > 0) fail('hard page errors: ' + hard.join('; '));
